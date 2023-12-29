@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 type Work struct {
@@ -28,13 +29,16 @@ func main() {
 		go func() {
 			for {
 				// Get work from the work channel
+				fmt.Println("got a job")
 				work := <-workCh
 				// Compute result
 				result := Result{
 					value: work.value * 2,
 				}
 				// Send the result via the result channel
+				time.Sleep(time.Second)
 				resultCh <- result
+				fmt.Println("finished job")
 			}
 		}()
 	}
@@ -43,6 +47,7 @@ func main() {
 		// Collect all the results.
 		for i := 0; i < len(workQueue); i++ {
 			results = append(results, <-resultCh)
+			fmt.Println("got a result")
 		}
 		// When all the results are collected, notify the done channel
 		done <- true
@@ -51,6 +56,8 @@ func main() {
 	for _, work := range workQueue {
 		workCh <- work
 	}
+
+	close(workCh)
 	// Wait until everything is done
 	<-done
 	fmt.Println(results)
