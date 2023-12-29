@@ -15,9 +15,10 @@ func main() {
 	term := make(chan struct{})
 	done := make(chan struct{})
 	sig := make(chan os.Signal, 1)
+	// @COOL
 	tick := time.NewTicker(time.Second)
 	go func() {
-		<-sig
+		fmt.Println("Signal received", <-sig)
 		close(term)
 	}()
 
