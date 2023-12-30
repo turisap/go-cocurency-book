@@ -8,6 +8,8 @@ import (
 )
 
 type Cache struct {
+	// single writer or mutliple readers
+	// can hold the lock
 	m    sync.RWMutex
 	data map[string]Data
 }
