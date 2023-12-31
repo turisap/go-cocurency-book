@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"sync"
+	"time"
 )
 
 type Queue struct {
@@ -54,15 +57,45 @@ func main() {
 	queue := NewQueue(10)
 
 	producer := func() {
+		for {
+			v := rand.Int()
+
+			lock.Lock()
+			for !queue.Enqueue(v) {
+				fmt.Println("Queue is full")
+				fullCond.Wait()
+			}
+			lock.Unlock()
+			emptyCond.Signal()
+			time.Sleep(time.Millisecond * time.Duration(rand.Intn(1000)))
+		}
 	}
 
 	consumer := func() {
+		for {
+			lock.Lock()
+			var v int
+			for {
+				var ok bool
+				if v, ok = queue.Dequeue(); !ok {
+					fmt.Println("Queue is empty")
+					emptyCond.Wait()
+					continue
+				}
+				break
+			}
+			lock.Unlock()
+			fullCond.Signal()
+			time.Sleep(time.Millisecond *
+				time.Duration(rand.Intn(1000)))
+			fmt.Println(v)
+		}
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 33; i++ {
 		go producer()
 	}
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 33; i++ {
 		go consumer()
 	}
 	select {} // Wait indefinitely
