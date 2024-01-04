@@ -15,7 +15,8 @@ func main() {
 	//}
 
 	//counter()
-	orchestrator()
+	//orchestrator()
+	processUpdate()
 }
 
 func badCriticalExample() {
